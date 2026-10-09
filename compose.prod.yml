@@ -14,15 +14,15 @@
 # tag built, never a stale or newer :latest.
 services:
   web:
-    image: ghcr.io/zeecka/aperisolve:${PROJECT_VERSION:-latest}
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:${PROJECT_VERSION:-latest}
     volumes:
       - ./aperisolve/site_content:/app/aperisolve/site_content:ro
 
   worker:
-    image: ghcr.io/zeecka/aperisolve:${PROJECT_VERSION:-latest}
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:${PROJECT_VERSION:-latest}
 
   cron:
-    image: ghcr.io/zeecka/aperisolve:${PROJECT_VERSION:-latest}
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:${PROJECT_VERSION:-latest}
 
   initdb:
-    image: ghcr.io/zeecka/aperisolve:${PROJECT_VERSION:-latest}
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:${PROJECT_VERSION:-latest}

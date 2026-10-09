@@ -16,7 +16,7 @@ x-logging: &default-logging
 
 services:
   web:
-    image: ghcr.io/zeecka/aperisolve:latest
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     #build: .
     container_name: aperisolve-web
     restart: always
@@ -50,7 +50,7 @@ services:
       start_period: 60s
 
   worker:
-    image: ghcr.io/zeecka/aperisolve:latest
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     #build: .
     container_name: aperisolve-worker
     restart: always
@@ -80,7 +80,7 @@ services:
       - .env
 
   cron:
-    image: ghcr.io/zeecka/aperisolve:latest
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     #build: .
     container_name: aperisolve-cron
     restart: always
@@ -100,7 +100,7 @@ services:
       - .env
 
   initdb:
-    image: ghcr.io/zeecka/aperisolve:latest
+    image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     #build: .
     container_name: aperisolve-initdb
     cpus: 1

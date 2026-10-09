@@ -1,0 +1,6 @@
+# Files executed inside Linux containers must keep LF even on Windows checkouts
+# (core.autocrlf=true turned docker/config.sub into CRLF and broke the build).
+docker/* text eol=lf
+Dockerfile text eol=lf
+*.sh text eol=lf
+*.patch text eol=lf

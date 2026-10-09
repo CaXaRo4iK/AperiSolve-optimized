@@ -18,3 +18,12 @@ docs
 examples
 tests
 messages.pot
+
+*.md
+!README.md
+lint.sh
+scripts
+*.excalidraw
+compose*.yml
+!scripts/vendor_assets.sh
+aperisolve/static/vendor

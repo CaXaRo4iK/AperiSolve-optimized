@@ -1,6 +1,6 @@
 services:
   web:
-    #image: ghcr.io/zeecka/aperisolve:latest
+    #image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     build: .
     container_name: aperisolve-web
     restart: always
@@ -22,7 +22,7 @@ services:
       - .env.example
 
   worker:
-    #image: ghcr.io/zeecka/aperisolve:latest
+    #image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     build: .
     container_name: aperisolve-worker
     restart: always
@@ -40,7 +40,7 @@ services:
       - .env.example
 
   cron:
-    #image: ghcr.io/zeecka/aperisolve:latest
+    #image: ghcr.io/caxaro4ik/aperisolve-optimized:latest
     build: .
     container_name: aperisolve-cron
     restart: always

@@ -15,8 +15,8 @@ Production deployment is **tag-driven**. Nothing deploys on a push to
    ```
 
 3. The `release.yml` workflow then:
-   - builds the image and pushes `ghcr.io/zeecka/aperisolve:<tag>` and
-     `ghcr.io/zeecka/aperisolve:latest`;
+   - builds the image and pushes `ghcr.io/caxaro4ik/aperisolve-optimized:<tag>` and
+     `ghcr.io/caxaro4ik/aperisolve-optimized:latest`;
    - SSHes to the production server (`PROD_SSH_*` secrets), regenerates
      `.env` from `.env.example` plus the repository's Actions
      variables/secrets (ports, limits, ads, Sentry, database, ...);
@@ -69,7 +69,7 @@ Docker image self-hosters pull — lives under `aperisolve/site_content/`.
 That directory is:
 
 - **excluded from the image** via `.dockerignore`, so the published
-  `ghcr.io/zeecka/aperisolve` image never contains it;
+  `ghcr.io/caxaro4ik/aperisolve-optimized` image never contains it;
 - **bind-mounted read-only on production** via `compose.prod.yml`, which the
   deploy step layers on top of `compose.yml`.
 
