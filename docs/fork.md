@@ -5,6 +5,9 @@ This fork tracks `Zeecka/AperiSolve` and carries a small set of changes:
 - third-party front-end assets are self-hosted (downloaded by
   `scripts/vendor_assets.sh` in the `vendor` Docker stage, not committed);
 - Dockerfile: dependency layer before app code, headless JRE, gthread gunicorn;
+- ffmpeg is a pinned static binary (`mwader/static-ffmpeg`, tag + digest in the Dockerfile)
+  instead of the Debian package; Dependabot's docker ecosystem opens PRs for new
+  releases, so bump that `FROM` line to pick up ffmpeg security fixes;
 - release workflow: build-only (no deploy job, no SSH secrets), no QEMU, layer cache,
   image pushed to ghcr on tags only, own image name; deploy by hand with
   `docker compose pull && docker compose up -d`;

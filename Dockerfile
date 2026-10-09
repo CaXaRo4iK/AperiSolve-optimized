@@ -57,6 +57,12 @@ WORKDIR /w
 COPY scripts/vendor_assets.sh scripts/vendor_assets.sh
 RUN bash scripts/vendor_assets.sh
 
+# Static ffmpeg: the Debian package drags in ~300 MB (LLVM, Mesa, Z3, x265, ...) for one
+# command (`ffmpeg -i file -ar N out.wav`). Only the binary is copied; ffprobe/docs are not.
+# Pinned by tag AND digest; Dependabot (docker ecosystem) opens a PR on new releases, so
+# security fixes are picked up by bumping this line.
+FROM mwader/static-ffmpeg:9.0.2-1@sha256:f5d100184884eb3e82b0eb14bb5ebf98da99826ac824989720297fb9ef21c822 AS ffmpeg
+
 FROM ghcr.io/astral-sh/uv:0.8.22 AS uvbin
 
 # ==========================
@@ -89,7 +95,6 @@ RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80retries && apt-get upda
     binutils \
     outguess \
     pngcheck \
-    ffmpeg \
     poppler-utils \
     graphicsmagick \
     graphicsmagick-imagemagick-compat \
@@ -112,7 +117,8 @@ COPY pyproject.toml uv.lock ./
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,from=uvbin,source=/uv,target=/bin/uv \
-    uv sync --frozen --no-dev --no-install-project
+    uv sync --frozen --no-dev --no-install-project \
+    && find /app/.venv -type d \( -name tests -o -name test \) -prune -exec rm -rf {} +
 ENV PATH="/app/.venv/bin:$PATH"
 
 COPY aperisolve/ ./aperisolve/
@@ -128,6 +134,7 @@ RUN pybabel compile -d aperisolve/translations
 COPY --from=builder /usr/local/bin/jphide /usr/local/bin/jphide
 COPY --from=builder /usr/local/bin/jpseek /usr/local/bin/jpseek
 COPY --from=builder /usr/local/bin/jsteg /usr/local/bin/jsteg
+COPY --from=ffmpeg /ffmpeg /usr/local/bin/ffmpeg
 
 # Vendored pdfid.py (Didier Stevens, v0.2.10; docker/) for PDF triage. Vendored
 # rather than downloaded at build time: didierstevens.com is frequently
