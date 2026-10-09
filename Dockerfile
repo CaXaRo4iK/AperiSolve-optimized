@@ -57,6 +57,8 @@ WORKDIR /w
 COPY scripts/vendor_assets.sh scripts/vendor_assets.sh
 RUN bash scripts/vendor_assets.sh
 
+FROM ghcr.io/astral-sh/uv:0.8.22 AS uvbin
+
 # ==========================
 # Stage 2 : Image runtime minimale
 # ==========================
@@ -69,13 +71,13 @@ RUN if [ -n "$DEBIAN_MIRROR" ]; then sed -i "s#http://deb.debian.org#${DEBIAN_MI
 
 WORKDIR /app
 
-# Install uv binary
-COPY --from=ghcr.io/astral-sh/uv:0.8.22 /uv /uvx /bin/
+# uv is only needed at build time: it is bind-mounted into the RUN steps below
+# (--mount=from=uvbin) instead of being copied into the image (~48 MB saved).
 
 # Install runtime + stego tools (retries: slow/proxied networks drop long downloads)
 RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80retries && apt-get update && apt-get install -y --no-install-recommends \
     expect \
-    default-jre \
+    default-jre-headless \
     file \
     ruby \
     zip \
@@ -96,7 +98,10 @@ RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80retries && apt-get upda
 
 # Install OpenStego
 COPY --from=builder /tmp/openstego.deb /tmp/openstego.deb
-RUN dpkg -i /tmp/openstego.deb || apt-get install -f -y --no-install-recommends \
+# --force-depends: the .deb depends on `default-jre`, and satisfying that through
+# `apt-get install -f` would pull the full (GTK/X11) JRE next to the headless one
+# installed above. OpenStego is used from the CLI only, so headless is enough.
+RUN dpkg -i --force-depends /tmp/openstego.deb \
     && rm -rf /tmp/openstego.deb \
     && rm -rf /var/lib/apt/lists/*
 
@@ -106,13 +111,15 @@ RUN dpkg -i /tmp/openstego.deb || apt-get install -f -y --no-install-recommends 
 COPY pyproject.toml uv.lock ./
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,from=uvbin,source=/uv,target=/bin/uv \
     uv sync --frozen --no-dev --no-install-project
 ENV PATH="/app/.venv/bin:$PATH"
 
 COPY aperisolve/ ./aperisolve/
 COPY --from=vendor /w/aperisolve/static/vendor ./aperisolve/static/vendor
 # Installs only the project itself (dependencies are already in the cached layer).
-RUN uv sync --frozen --no-dev
+RUN --mount=type=bind,from=uvbin,source=/uv,target=/bin/uv \
+    uv sync --frozen --no-dev
 
 # Compile gettext catalogs (source .po files are committed; .mo are built)
 RUN pybabel compile -d aperisolve/translations
