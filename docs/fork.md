@@ -5,7 +5,9 @@ This fork tracks `Zeecka/AperiSolve` and carries a small set of changes:
 - third-party front-end assets are self-hosted (downloaded by
   `scripts/vendor_assets.sh` in the `vendor` Docker stage, not committed);
 - Dockerfile: dependency layer before app code, headless JRE, gthread gunicorn;
-- release workflow: no QEMU, layer cache, builds on tags only, own image name;
+- release workflow: build-only (no deploy job, no SSH secrets), no QEMU, layer cache,
+  image pushed to ghcr on tags only, own image name; deploy by hand with
+  `docker compose pull && docker compose up -d`;
 - `.gitattributes` keeps LF in files that run inside Linux containers.
 
 Remotes: `origin` = this fork, `upstream` = Zeecka/AperiSolve.
